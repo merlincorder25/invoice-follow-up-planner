@@ -9,6 +9,12 @@
   const escape = value => { const div = document.createElement('div'); div.textContent = String(value ?? ''); return div.innerHTML; };
   const daysFromToday = due => Math.round((new Date(`${due}T12:00:00`) - new Date(`${today()}T12:00:00`)) / 86400000);
   const normalize = raw => ({ id: String(raw.id || uid()), client: String(raw.client || '').slice(0, 80), reference: String(raw.reference || '').slice(0, 40), amount: Math.max(0, Number(raw.amount) || 0), issueDate: String(raw.issueDate || today()).slice(0, 10), dueDate: String(raw.dueDate || today()).slice(0, 10), status: ['open', 'paid', 'paused'].includes(raw.status) ? raw.status : 'open', notes: String(raw.notes || '').slice(0, 240) });
+  const validInvoice = invoice => {
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+    const issue = new Date(`${invoice.issueDate}T12:00:00`);
+    const due = new Date(`${invoice.dueDate}T12:00:00`);
+    return Boolean(invoice.client && invoice.reference && Number.isFinite(invoice.amount) && invoice.amount > 0 && datePattern.test(invoice.issueDate) && datePattern.test(invoice.dueDate) && !Number.isNaN(issue.getTime()) && !Number.isNaN(due.getTime()) && invoice.dueDate >= invoice.issueDate);
+  };
   const demo = () => { const base = today(); return [
     normalize({ id: uid(), client: 'Northstar Studio', reference: 'INV-1042', amount: 1850, issueDate: addDays(base, -25), dueDate: addDays(base, -10), status: 'open', notes: 'Second follow-up is due.' }),
     normalize({ id: uid(), client: 'Cedar & Co.', reference: 'INV-1043', amount: 720, issueDate: addDays(base, -12), dueDate: base, status: 'open', notes: 'Due today.' }),
@@ -58,6 +64,6 @@
   $('#close-dialog').addEventListener('click', closeDraft); $('#done-draft').addEventListener('click', closeDraft); $('#draft-dialog').addEventListener('cancel', closeDraft);
   $('#copy-draft').addEventListener('click', async () => { const text = $('#draft-text').value; try { await navigator.clipboard.writeText(text); $('#copy-status').textContent = 'Copied. Nothing was sent.'; } catch { $('#draft-text').focus(); $('#draft-text').select(); $('#copy-status').textContent = 'Select the text and copy manually. Nothing was sent.'; } });
   $('#export-data').addEventListener('click', () => { const blob = new Blob([JSON.stringify(invoices, null, 2)], { type: 'application/json' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'invoice-radar-export.json'; link.click(); URL.revokeObjectURL(link.href); announce('JSON export prepared.'); });
-  $('#import-data').addEventListener('change', async event => { const file = event.target.files[0]; if (!file) return; try { const parsed = JSON.parse(await file.text()); if (!Array.isArray(parsed)) throw new Error('Expected an array'); invoices = parsed.map(normalize).filter(i => i.client || i.reference); save(); render(); announce(`${invoices.length} invoice${invoices.length === 1 ? '' : 's'} imported.`); } catch { announce('Import failed: choose a valid Invoice Radar JSON export.'); } event.target.value = ''; });
+  $('#import-data').addEventListener('change', async event => { const file = event.target.files[0]; if (!file) return; try { const parsed = JSON.parse(await file.text()); if (!Array.isArray(parsed)) throw new Error('Expected an array'); const imported = parsed.map(normalize); const valid = imported.filter(validInvoice); const rejected = imported.length - valid.length; if (rejected) announce(`${valid.length} imported; ${rejected} invalid record${rejected === 1 ? '' : 's'} skipped.`); else announce(`${valid.length} invoice${valid.length === 1 ? '' : 's'} imported.`); invoices = valid; save(); render(); } catch { announce('Import failed: choose a valid Invoice Radar JSON export.'); } event.target.value = ''; });
   clearForm(); render();
 })();

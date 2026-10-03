@@ -6,7 +6,7 @@
 - No runtime dependencies or API keys: PASS — app uses browser APIs only.
 - Safety boundary visible: PASS — UI states local-only storage and no send/payment/account features.
 - User content escaped before invoice-card rendering: PASS — `escape()` uses a detached text node.
-- Imported records normalized: PASS — imported fields are constrained and statuses are allow-listed.
+- Imported records normalized and validated: PASS — imported fields are constrained, statuses are allow-listed, and malformed records are skipped with a visible count.
 - Required flow present: PASS — add, edit, delete, priority queue, draft tones, copy-only, mark paid/paused, local persistence, JSON export/import, reset, demo data.
 
 ## Browser smoke-test protocol
@@ -21,7 +21,7 @@ Run in a clean browser profile or private window:
 6. Pause and reopen an invoice.
 7. Reload the page. Confirm records remain in the same browser.
 8. Export JSON, reset the workspace, import the export, and confirm records return.
-9. Import malformed JSON and confirm the app reports failure without replacing records.
+9. Import malformed JSON and confirm the app reports failure without replacing records. Array-shaped records with invalid amount/date/order are rejected and counted as skipped.
 10. Enter a `<script>` string as a client label and confirm it renders as text rather than executing.
 11. Use Tab, Enter, and visible focus outlines through the add and draft flow.
 12. Inspect the browser console and network panel for unexpected errors or external requests.
