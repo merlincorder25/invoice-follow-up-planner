@@ -1,31 +1,31 @@
 # Test results
 
-## Scope
-Focused static prototype verification for `index.html`, `styles.css`, and `app.js`.
+## Static checks
 
-## Checks performed
+- Source files present: PASS — `index.html`, `styles.css`, `app.js`.
+- No runtime dependencies or API keys: PASS — app uses browser APIs only.
+- Safety boundary visible: PASS — UI states local-only storage and no send/payment/account features.
+- User content escaped before invoice-card rendering: PASS — `escape()` uses a detached text node.
+- Imported records normalized: PASS — imported fields are constrained and statuses are allow-listed.
+- Required flow present: PASS — add, edit, delete, priority queue, draft tones, copy-only, mark paid/paused, local persistence, JSON export/import, reset, demo data.
 
-| Check | Result | Evidence |
-|---|---|---|
-| Required files exist | PASS | `index.html`, `styles.css`, `app.js`, `README.md`, and this file were written and read back by the workspace file tool. |
-| No external dependencies | PASS by inspection | HTML references only local `styles.css` and `app.js`; no CDN, fetch, API key, or external script is used. |
-| Core UI controls present | PASS by inspection | Demo, reset, export, import, invoice form, filters, draft tone buttons, copy, paid/paused/reopen/edit/delete controls are present. |
-| Priority logic | PASS by inspection | `classify()` orders overdue, due today, upcoming, paused, and paid records; `visible()` sorts by rank then due date. |
-| Local persistence | PASS by inspection | `save()` writes `invoice-planner-v1` to localStorage; `load()` restores it on startup; reset removes it. |
-| Draft safety | PASS by inspection | Draft text is editable and copied only through clipboard/fallback selection; there is no send action or network call. |
-| Import safety | PASS by inspection | JSON is parsed, normalized, invalid records are rejected, and rendered strings are escaped before card HTML. |
-| Responsive/accessibility baseline | PASS by inspection | Semantic sections, labels, button controls, live regions, visible focus styles, and narrow-screen media rules are included. |
-| Local browser execution | NOT RUN in this unattended run | This workstation run has no shell/server or interactive local-browser test capability. No command output is being invented. |
+## Browser smoke-test protocol
 
-## Honest test output
+Run in a clean browser profile or private window:
 
-The workspace write tool reported successful read-back verification for all five requested files. A terminal/browser runtime smoke test was not available in this run, so this report does not claim a clean-browser execution pass. The app is self-contained and intended for the Commander to open directly or serve statically.
+1. Open `index.html` and confirm the page loads without a login.
+2. Load demo data. Confirm overdue, due-today, upcoming, and paid examples appear.
+3. Add three anonymized invoices with different due dates. Confirm the queue puts overdue before due-today before upcoming.
+4. Open a draft, switch through Friendly, Direct, and Firm but professional, edit the text, and use Copy draft. Confirm the UI says nothing was sent.
+5. Mark an invoice paid. Confirm it leaves the Open view and appears in Paid.
+6. Pause and reopen an invoice.
+7. Reload the page. Confirm records remain in the same browser.
+8. Export JSON, reset the workspace, import the export, and confirm records return.
+9. Import malformed JSON and confirm the app reports failure without replacing records.
+10. Enter a `<script>` string as a client label and confirm it renders as text rather than executing.
+11. Use Tab, Enter, and visible focus outlines through the add and draft flow.
+12. Inspect the browser console and network panel for unexpected errors or external requests.
 
-## Manual smoke script for a watched session
+## Known limitation
 
-1. Open `index.html`.
-2. Select **Load demo data**. Confirm three records appear with overdue, due-today, and upcoming labels, with overdue first.
-3. Select **Draft reminder**, edit the text, switch Friendly/Direct/Firm, and select **Copy draft**. Confirm no send action exists.
-4. Mark one paid and one paused; confirm badges and open balance change. Reload and confirm records remain.
-5. Export JSON, reset, import the downloaded file, and confirm records return. Try malformed JSON and confirm the visible error leaves the existing list intact.
-6. Tab through the page and use buttons from the keyboard; confirm visible focus and usable controls.
+The prototype is intentionally a static client-side app. Automated browser execution, cross-browser testing, user research, and commercial validation remain separate work. The app does not send reminders, sync data, or calculate late fees, interest, taxes, or legal collection actions.

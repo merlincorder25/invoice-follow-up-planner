@@ -3,87 +3,81 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A local-only invoice follow-up planner.">
-  <title>Invoice Follow-up Planner</title>
+  <meta name="description" content="A local-only invoice follow-up planner for small service businesses.">
+  <title>Invoice Radar | Follow-up planner</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="topbar">
-    <div class="wrap topbar-inner">
-      <a class="brand" href="#top"><span aria-hidden="true">↗</span> Invoice Follow-up Planner</a>
-      <span class="local-badge">Local only</span>
+    <div class="shell topbar-inner">
+      <a class="brand" href="#top" aria-label="Invoice Radar home"><span class="brand-mark">IR</span><span>Invoice Radar</span></a>
+      <span class="privacy-pill">Local-only workspace</span>
     </div>
   </header>
 
-  <main id="top" class="wrap">
-    <section class="hero" aria-labelledby="title">
+  <main id="top" class="shell">
+    <section class="hero" aria-labelledby="page-title">
       <div>
-        <p class="eyebrow">A calmer collection routine</p>
-        <h1 id="title">Know what to follow up next.</h1>
-        <p class="lede">Track a small list of invoices, prioritize the ones needing attention, and prepare a reminder without sending anything.</p>
+        <p class="eyebrow">Receivables, without the chase</p>
+        <h1 id="page-title">Know what needs a follow-up next.</h1>
+        <p class="hero-copy">Keep a small invoice list, see the money that needs attention, and draft a professional note. Nothing is sent from this tool.</p>
       </div>
-      <aside class="notice" role="note"><strong>Your data stays in this browser.</strong><span>No account, integrations, or messages are involved. Use anonymized examples.</span></aside>
+      <div class="hero-actions">
+        <button id="load-demo" class="button button-secondary" type="button">Load demo data</button>
+        <button id="reset-data" class="button button-ghost" type="button">Reset workspace</button>
+      </div>
     </section>
 
-    <section class="actions" aria-label="Data actions">
-      <button id="demo" class="button primary" type="button">Load demo data</button>
-      <button id="reset" class="button" type="button">Reset</button>
-      <span class="grow"></span>
-      <button id="export" class="button" type="button">Export JSON</button>
-      <button id="import-button" class="button" type="button">Import JSON</button>
-      <input id="import-file" type="file" accept="application/json,.json" hidden>
+    <section class="notice" aria-label="Privacy and product boundary">
+      <span class="notice-icon" aria-hidden="true">i</span>
+      <p><strong>Your data stays in this browser.</strong> Invoice Radar has no account, backend, payment connection, or send button. Use anonymized examples for this prototype.</p>
     </section>
 
-    <section class="metrics" aria-label="Invoice totals">
-      <div><span>Open balance</span><strong id="balance">$0.00</strong></div>
-      <div><span>Needs attention</span><strong id="attention">0</strong></div>
-      <div><span>All invoices</span><strong id="count">0</strong></div>
+    <section class="summary-grid" aria-label="Receivables summary">
+      <article class="metric-card metric-card-accent"><span class="metric-label">Open balance</span><strong id="open-balance" class="metric-value">$0.00</strong><span id="open-count" class="metric-foot">0 open invoices</span></article>
+      <article class="metric-card"><span class="metric-label">Needs attention</span><strong id="attention-count" class="metric-value">0</strong><span id="attention-foot" class="metric-foot">overdue or due today</span></article>
+      <article class="metric-card"><span class="metric-label">Paid this view</span><strong id="paid-balance" class="metric-value">$0.00</strong><span id="paid-count" class="metric-foot">0 paid invoices</span></article>
     </section>
 
-    <div id="message" class="message" role="status" aria-live="polite" hidden></div>
-
-    <div class="columns">
-      <section class="panel" aria-labelledby="form-title">
-        <div class="panel-title"><div><p class="eyebrow">Capture the facts</p><h2 id="form-title">Add invoice</h2></div><span class="step">1</span></div>
-        <form id="invoice-form">
+    <div class="workspace-grid">
+      <section class="panel form-panel" aria-labelledby="form-title">
+        <div class="panel-heading"><div><p class="eyebrow">1. Capture</p><h2 id="form-title">Add an invoice</h2></div><span id="form-mode" class="mode-label">New</span></div>
+        <form id="invoice-form" novalidate>
           <input id="invoice-id" type="hidden">
-          <div class="two">
-            <label>Client label<input id="client" required maxlength="80" placeholder="e.g. Northstar Studio"></label>
-            <label>Reference<input id="reference" required maxlength="40" placeholder="e.g. NS-104"></label>
+          <div class="form-grid">
+            <label class="field field-span-2"><span>Client label</span><input id="client" name="client" required maxlength="80" placeholder="e.g. Northstar Studio"><small>Use a label or alias, not personal information.</small></label>
+            <label class="field"><span>Invoice reference</span><input id="reference" name="reference" required maxlength="40" placeholder="INV-1042"></label>
+            <label class="field"><span>Amount</span><div class="input-prefix"><span>$</span><input id="amount" name="amount" type="number" min="0.01" step="0.01" required placeholder="0.00"></div></label>
+            <label class="field"><span>Issue date</span><input id="issue-date" name="issueDate" type="date" required></label>
+            <label class="field"><span>Due date</span><input id="due-date" name="dueDate" type="date" required></label>
+            <label class="field field-span-2"><span>Status</span><select id="status" name="status"><option value="open">Open</option><option value="paid">Paid</option><option value="paused">Paused</option></select></label>
+            <label class="field field-span-2"><span>Private note <em>optional</em></span><textarea id="notes" name="notes" rows="3" maxlength="240" placeholder="Context for your next action"></textarea></label>
           </div>
-          <div class="two">
-            <label>Amount<input id="amount" type="number" min="0" step="0.01" required placeholder="0.00"></label>
-            <label>Status<select id="status"><option value="open">Open</option><option value="paid">Paid</option><option value="paused">Paused</option></select></label>
-          </div>
-          <div class="two">
-            <label>Issue date<input id="issued" type="date" required></label>
-            <label>Due date<input id="due" type="date" required></label>
-          </div>
-          <label>Notes <small>optional</small><textarea id="notes" maxlength="400" rows="3" placeholder="Context for your next follow-up"></textarea></label>
-          <div class="form-actions"><button class="button primary" type="submit" id="save">Save invoice</button><button class="button" type="button" id="cancel" hidden>Cancel edit</button></div>
+          <p id="form-error" class="form-error" role="alert" hidden></p>
+          <div class="form-actions"><button id="save-invoice" class="button button-primary" type="submit">Add invoice</button><button id="cancel-edit" class="button button-ghost" type="button" hidden>Cancel edit</button></div>
         </form>
       </section>
 
-      <section class="panel" aria-labelledby="queue-title">
-        <div class="panel-title queue-title"><div><p class="eyebrow">Your working queue</p><h2 id="queue-title">Follow up next</h2></div><div class="filters" role="group" aria-label="Filter invoices"><button class="filter active" data-filter="all" type="button">All</button><button class="filter" data-filter="open" type="button">Open</button><button class="filter" data-filter="attention" type="button">Attention</button></div></div>
-        <div id="invoice-list" aria-live="polite"></div>
-      </section>
-
-      <section class="panel" aria-labelledby="draft-title">
-        <div class="panel-title"><div><p class="eyebrow">Make it easy to act</p><h2 id="draft-title">Reminder draft</h2></div><span class="step">2</span></div>
-        <div id="draft-empty" class="empty"><span aria-hidden="true">✎</span><p>Select an invoice to prepare a reminder.</p></div>
-        <div id="draft-area" hidden>
-          <div id="selected" class="selected"></div>
-          <div class="tones" role="tablist" aria-label="Reminder tone"><button class="tone active" data-tone="friendly" role="tab" aria-selected="true" type="button">Friendly</button><button class="tone" data-tone="direct" role="tab" aria-selected="false" type="button">Direct</button><button class="tone" data-tone="firm" role="tab" aria-selected="false" type="button">Firm</button></div>
-          <label class="sr-only" for="draft">Editable reminder draft</label>
-          <textarea id="draft" rows="9"></textarea>
-          <div class="draft-actions"><button id="copy" class="button primary" type="button">Copy draft</button><span id="copy-result" role="status" aria-live="polite"></span></div>
-          <p class="hint">Copy only. Nothing is sent from this prototype.</p>
-        </div>
+      <section class="panel queue-panel" aria-labelledby="queue-title">
+        <div class="panel-heading queue-heading"><div><p class="eyebrow">2. Decide</p><h2 id="queue-title">Follow-up queue</h2></div><span id="queue-count" class="count-badge">0</span></div>
+        <div class="queue-tools"><div class="segmented" role="group" aria-label="Filter invoices"><button class="filter-button active" data-filter="open" type="button">Open</button><button class="filter-button" data-filter="all" type="button">All</button><button class="filter-button" data-filter="paid" type="button">Paid</button><button class="filter-button" data-filter="paused" type="button">Paused</button></div><button id="export-data" class="text-button" type="button">Export JSON</button><label class="text-button import-label">Import JSON<input id="import-data" type="file" accept="application/json,.json" hidden></label></div>
+        <div id="invoice-list" class="invoice-list" aria-live="polite"></div>
+        <div id="empty-state" class="empty-state" hidden><div class="empty-icon" aria-hidden="true">✓</div><h3 id="empty-title">Your queue is clear</h3><p id="empty-copy">Add an invoice or load the demo data to see the workflow.</p></div>
       </section>
     </div>
+
+    <section class="how-it-works" aria-labelledby="how-title"><div><p class="eyebrow">3. Act, manually</p><h2 id="how-title">Draft, review, then send from your usual channel.</h2></div><p>Choose a tone to create a starting point. Edit it, copy it, and decide what happens next. This prototype deliberately stops before external communication.</p></section>
+    <footer class="footer"><span>Invoice Radar prototype</span><span>Problem-indicated, not market-validated.</span><a href="README.md">How this prototype works</a></footer>
   </main>
-  <footer class="wrap footer">No email, SMS, payments, login, cloud sync, or customer contact. This is a local prototype.</footer>
-  <script src="app.js" defer></script>
+
+  <dialog id="draft-dialog" class="draft-dialog" aria-labelledby="draft-title">
+    <div class="dialog-heading"><div><p class="eyebrow">Suggested follow-up</p><h2 id="draft-title">Draft a note</h2></div><button id="close-dialog" class="icon-button" type="button" aria-label="Close draft">×</button></div>
+    <p id="draft-context" class="dialog-context"></p>
+    <div class="tone-tabs" role="group" aria-label="Draft tone"><button class="tone-button active" data-tone="friendly" type="button">Friendly</button><button class="tone-button" data-tone="direct" type="button">Direct</button><button class="tone-button" data-tone="firm" type="button">Firm but professional</button></div>
+    <label class="field"><span>Editable draft</span><textarea id="draft-text" rows="10"></textarea></label>
+    <div class="dialog-footer"><span id="copy-status" class="copy-status" role="status"></span><button id="copy-draft" class="button button-primary" type="button">Copy draft</button><button id="done-draft" class="button button-ghost" type="button">Done</button></div>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <script src="app.js"></script>
 </body>
 </html>
